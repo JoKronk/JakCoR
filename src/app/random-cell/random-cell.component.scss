@@ -116,6 +116,11 @@ select {
         td, div {
             color: #eeeeee !important;
         }
+    
+        tr.selectable:hover {
+            background: #ee7e46;
+            cursor: pointer;
+        }
     }
 
     &-icon {

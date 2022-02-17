@@ -116,6 +116,13 @@ export class RandomCellComponent implements OnInit {
     return this.ruleSelection.selected.filter(x => !x.mandatory).length === 0;
   }
 
+  rowToggle(rule: Rule) {
+    if (rule.mandatory)
+      return;
+      
+    this.ruleSelection.toggle(rule);
+  }
+
   ruleMasterToggle() {
     if (this.isAllRulesSelected()) {
       this.ruleSelection.selected.forEach(x => {
