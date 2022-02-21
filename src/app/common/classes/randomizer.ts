@@ -82,6 +82,9 @@ export class Randomizer {
         const cellId: number = nextId ? nextId : this.getNextCellId(this.previousCell && this.randomizeIfSameLevel() ? this.previousCell.level : null);
         const cell = this.cells.find(x => x.id === cellId);
 
+        //previous cell assigned here in case updateInjection inserts new cell
+        this.previousCell = cell;
+
         if (!isEndCell)
             this.updateInjections(cell);
 
@@ -90,7 +93,6 @@ export class Randomizer {
 
         //assign values
         cell.cellNumber = this.currentCellNumber;
-        this.previousCell = cell;
 
         if (this.consoleLogDebugText)
             console.log("cell", this.currentCellNumber + " - " + cell.level + ": " + cell.name);

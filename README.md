@@ -6,7 +6,6 @@ Randomizer that aims to be as dynamic in settings for runners.
 
 ## TODO
 
-- Fix leftout Cell bug (if it wasn't fixed already?): a cell is sometimes rarely removed from the cell order.
 - Pesets.
 - Custom Rule & Buffer option.
 - Pretty print XML on Livesplit download.
