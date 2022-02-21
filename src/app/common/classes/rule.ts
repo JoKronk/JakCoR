@@ -173,10 +173,10 @@ export class Rule {
             Rule.Geyser(),
             Rule.Hub2(),
             Rule.Hub3andCitadel(),
-            Rule.SnowyOrbBoxCell(),
 
             Rule.Misty(),
             Rule.Snowy(),
+            Rule.SnowyOrbBoxCell(),
             Rule.BlueRings(),
 
             Rule.NoFCS(),
