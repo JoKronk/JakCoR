@@ -6,8 +6,7 @@ Randomizer that aims to be as dynamic in settings for runners.
 
 ## TODO
 
-- Pesets.
-- Custom Rule & Buffer option.
+- Custom Rule creator.
 - Pretty print XML on Livesplit download.
 
 ## Version
