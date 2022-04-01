@@ -8,6 +8,7 @@ export class Preset {
     description: string;
     randomizer: Randomizer;
     rules: Rule[];
+    //!TODO: Should probably be made into an enum
     lockLevel: number; //0 - nothing. 1 - cellsInRun. 2 - endAtFinalBoss. 3 - sameLevelPercent,sameLevelPercentOrbcells. 4 - cellsShownInAdvance.
 
     constructor(name: string, description: string) {
@@ -133,7 +134,14 @@ export class Preset {
         preset.rules.find(x => x.id == 15).changeableType = false;
         preset.rules.find(x => x.id == 16).type = Rule.RestrictionType();
         preset.rules.find(x => x.id == 16).changeableType = false;
-        console.log(preset.rules);
+        preset.rules.find(x => x.id == 17).type = Rule.RestrictionType();
+        preset.rules.find(x => x.id == 17).changeableType = false;
+        preset.rules.find(x => x.id == 18).type = Rule.RestrictionType();
+        preset.rules.find(x => x.id == 18).changeableType = false;
+        preset.rules.find(x => x.id == 19).type = Rule.RestrictionType();
+        preset.rules.find(x => x.id == 19).changeableType = false;
+        preset.rules.find(x => x.id == 20).type = Rule.RestrictionType();
+        preset.rules.find(x => x.id == 20).changeableType = false;
         return preset;
     }
 

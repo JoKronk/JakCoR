@@ -10,12 +10,14 @@ export class Rule {
     type: string;
     changeableType: boolean;
 
+    active: boolean;
     cleared: boolean;
 
     cellCountNeeded?: number;
     cellIdsNeeded?: number[];
     cellIdsNeededLeft?: number[];
     cellCountNeededAfterCellIdsRequired?: number;
+    cellIdsAnyNeededBeforeActive?: number[];
 
     cellsUnlocked: CellList; //unlocked when rule is lifted
 
@@ -30,6 +32,7 @@ export class Rule {
         this.cellsUnlocked = new CellList();
         this.cleared = false;
         this.changeableType = true;
+        this.active = true;
     }
 
     //REQUIRED BASE RULES
@@ -154,16 +157,48 @@ export class Rule {
     }
     
     public static NoClosedFortress(): Rule {
-        const rule: Rule = new Rule(15, "Snowy: No Fortress while Closed", Rule.InjectionType(), "Makes sure Fortress Gate is open before Snowy Fortress.");
+        const rule: Rule = new Rule(15, "Snowy: No Fortress Gate Skip", Rule.InjectionType(), "Makes sure Fortress Gate is open before any cell requiring Snowy Fortress are randomized.");
+        rule.cellIdsNeeded = [91];
+        rule.cellsUnlocked.cellIds = [90, 93];
+        return rule;
+    }
+    
+    public static NoFortressDoubleBreakIn(): Rule {
+        const rule: Rule = new Rule(16, "Snowy: No Double Fortress Gate Skip", Rule.InjectionType(), "Makes sure Fortress Gate Skip never have to be performed twice as it loads in faster the second time making it much harder.");
+        rule.cellIdsAnyNeededBeforeActive = [90, 93];
         rule.cellIdsNeeded = [91];
         rule.cellsUnlocked.cellIds = [90, 93];
         return rule;
     }
     
     public static NoFortressWithoutFlutFlut(): Rule {
-        const rule: Rule = new Rule(16, "Snowy: No Fortress without Flut Flut", Rule.InjectionType(), "Makes sure Flut Flut is unlocked before Snowy Fortress.");
+        const rule: Rule = new Rule(17, "Snowy: No Fortress without Flut Flut", Rule.InjectionType(), "Makes sure Flut Flut is unlocked before Snowy Fortress.");
         rule.cellIdsNeeded = [11];
         rule.cellsUnlocked.cellIds = [90, 93];
+        return rule;
+    }
+    
+    public static NoMayorSoftlock(): Rule {
+        const rule: Rule = new Rule(18, "Light Softlock Prevention: Mayor Orb Cell", Rule.InjectionType(), "Prevents Mayor Orb Cell to appear before FJ Mirrors IF as much as a single cell in FJ has been in the route so far.");
+        rule.cellIdsAnyNeededBeforeActive = [19, 20, 21, 22, 23, 24, 25];
+        rule.cellIdsNeeded = [18];
+        rule.cellsUnlocked.cellIds = [4];
+        return rule;
+    }
+    
+    public static NoGeologistSoftlock(): Rule {
+        const rule: Rule = new Rule(19, "Light Softlock Prevention: Geologist Orb Cell", Rule.InjectionType(), "Prevents Geologist Orb Cell to appear before Basin Moles IF as much as a single cell in Basin has been in the route so far.");
+        rule.cellIdsAnyNeededBeforeActive = [43, 44, 45, 46, 47, 48, 49];
+        rule.cellIdsNeeded = [42];
+        rule.cellsUnlocked.cellIds = [37];
+        return rule;
+    }
+    
+    public static NoGamblerSoftlock(): Rule {
+        const rule: Rule = new Rule(20, "Light Softlock Prevention: Gambler Orb Cell", Rule.InjectionType(), "Prevents Gambler Orb Cell to appear before Basin Race IF as much as a single cell in Basin has been in the route so far.");
+        rule.cellIdsAnyNeededBeforeActive = [42, 43, 45, 46, 47, 48, 49];
+        rule.cellIdsNeeded = [44];
+        rule.cellsUnlocked.cellIds = [36];
         return rule;
     }
 
@@ -188,7 +223,12 @@ export class Rule {
             Rule.NoEarlyTemple(),
             Rule.NoEarlyPlantBoss(),
             Rule.NoClosedFortress(),
-            Rule.NoFortressWithoutFlutFlut()
+            Rule.NoFortressDoubleBreakIn(),
+            Rule.NoFortressWithoutFlutFlut(),
+
+            Rule.NoMayorSoftlock(),
+            Rule.NoGeologistSoftlock(),
+            Rule.NoGamblerSoftlock()
         ]
     }
 
