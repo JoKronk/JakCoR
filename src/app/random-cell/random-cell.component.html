@@ -60,14 +60,21 @@
                     <div class="box box-slider box-input box-input-small">
                         <span>Same Level Chance (%): </span>
                         <input type="number" [disabled]="preset.lockLevel >= 3" [(ngModel)]="preset.randomizer.sameLevelPercent" min="0" max="100">
-                        <mat-slider [disabled]="preset.lockLevel >= 3" [(ngModel)]="preset.randomizer.sameLevelPercent" (input)="updateLevelPercent($event)" min="0" max="100" aria-label="percent"></mat-slider>
-                        <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Percentage chance for the next Cell to belong to the previous Cell's level. Radomises first if the level should be the same, then a cell from the level or a completely random cell. Set to 0 for Classic Randomizer.">help</mat-icon>
+                        <mat-slider [disabled]="preset.lockLevel >= 3" [(ngModel)]="preset.randomizer.sameLevelPercent" (input)="preset.randomizer.sameLevelPercent = $event.value" min="0" max="100" aria-label="percent"></mat-slider>
+                        <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Percentage chance for the next Cell to belong to the previous Cell's level. Radomizes first if the level should be the same, then randomizes the cell. Set to 0 for Classic Randomizer.">help</mat-icon>
                     </div>
                     <br />
                     <div class="box box-slider box-input box-input-small">
-                        <span>Same Level Orb Cell Chance (%): </span>
+                        <span>Same Hub Chance (%): </span>
+                        <input type="number" [disabled]="preset.lockLevel >= 3" [(ngModel)]="preset.randomizer.sameHubPercent" min="0" max="100">
+                        <mat-slider [disabled]="preset.lockLevel >= 3" [(ngModel)]="preset.randomizer.sameHubPercent" (input)="preset.randomizer.sameHubPercent = $event.value" min="0" max="100" aria-label="percent"></mat-slider>
+                        <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Percentage chance for the next Cell to belong to the previous Cell's hub. Radomizes first if the hub should be the same, then randomizes the cell. Set to 0 for Classic Randomizer.">help</mat-icon>
+                    </div>
+                    <br />
+                    <div class="box box-slider box-input box-input-small">
+                        <span>Chained Orb Cells Chance (%): </span>
                         <input type="number" [disabled]="preset.lockLevel >= 3" [(ngModel)]="preset.randomizer.sameLevelPercentOrbCells" min="0" max="100">
-                        <mat-slider [disabled]="preset.lockLevel >= 3" [(ngModel)]="preset.randomizer.sameLevelPercentOrbCells" (input)="updateOrbCellLevelPercent($event)" min="0" max="100" aria-label="percent"></mat-slider>
+                        <mat-slider [disabled]="preset.lockLevel >= 3" [(ngModel)]="preset.randomizer.sameLevelPercentOrbCells" (input)="preset.randomizer.sameLevelPercentOrbCells = $event.value" min="0" max="100" aria-label="percent"></mat-slider>
                         <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Same Level Chance but specific to cells with orb requirements to avoid (or enable) more crazy orb requirements.">help</mat-icon>
                     </div>
                 </div>

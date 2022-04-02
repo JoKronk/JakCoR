@@ -10,6 +10,7 @@ export class Randomizer {
     cellsShownInAdvance: number;
     sameLevelPercent: number;
     sameLevelPercentOrbCells: number;
+    sameHubPercent: number;
     
     seed: number;
     randomizeCompleted: boolean;
@@ -86,7 +87,7 @@ export class Randomizer {
         }
 
         //get cell (gets given cell id EVEN IF IT'S NOT AVAILABLE IN POOL, else a randomized cell with level persistance percentage radomization)
-        const cellId: number = nextId ? nextId : this.getNextCellId(this.previousCell && this.randomizeIfSameLevel() ? this.previousCell.endLevel : null);
+        const cellId: number = nextId ? nextId : this.getNextCellId(this.previousCell && this.randomizeIfSameLevel() ? this.previousCell.endLevel : null, this.previousCell && this.randomizeIfSameHub() ? this.previousCell.hub : null);
         const cell = this.cells.find(x => x.id === cellId);
 
         //previous cell assigned here in case updateInjection inserts new cell
@@ -256,14 +257,21 @@ export class Randomizer {
     }
 
     randomizeIfSameLevel(): boolean {
-        return this.mathRandom() < ((this.previousCell?.orbCost ? this.sameLevelPercentOrbCells :this.sameLevelPercent) / 100);
+        return this.mathRandom() < ((this.previousCell?.orbCost ? this.sameLevelPercentOrbCells : this.sameLevelPercent) / 100);
     }
 
-    getNextCellId(ensureLevel?: string): number {
+    randomizeIfSameHub(): boolean {
+        return this.mathRandom() < (this.sameHubPercent / 100);
+    }
+
+    getNextCellId(ensureLevel?: string, ensureHub?: number): number {
         if (this.consoleLogDebugText && ensureLevel)
             console.log("Same Level Randomized", ensureLevel);
 
-        const cellPool: Cell[] = ensureLevel ? (this.availableCellPool.filter(x => x.level === ensureLevel).length != 0 ? this.availableCellPool.filter(x => x.level === ensureLevel) : this.availableCellPool) : this.availableCellPool;
+        else if (this.consoleLogDebugText && ensureHub)
+                console.log("Same Hub Randomized", this.previousCell.cellNumber);
+
+        const cellPool: Cell[] = ensureLevel && this.availableCellPool.filter(x => x.level === ensureLevel).length != 0 ? this.availableCellPool.filter(x => x.level === ensureLevel) : ensureHub && this.availableCellPool.filter(x => x.hub === ensureHub).length != 0 ? this.availableCellPool.filter(x => x.hub === ensureHub) : this.availableCellPool;
         return cellPool[Math.floor(this.mathRandom() * cellPool.length)].id;
     }
 
@@ -345,7 +353,7 @@ export class Randomizer {
             new Cell(64, 2, "Boggy", "Tether cell 4"),
             new Cell(65, 2, "Boggy", "Scout flies"),
             new Cell(66, 2, "Mountain Pass", "Klaww"),
-            new Cell(67, 2, "Mountain Pass", "Reach end (Red sage after)"),
+            new Cell(67, 2, "Mountain Pass", "Reach end (Red sage after)", null, "VC"),
             new Cell(68, 2, "Mountain Pass", "Secret cell"),
             new Cell(69, 2, "Mountain Pass", "Scout flies"),
             new Cell(70, 3, "VC", "Miners", 90),
