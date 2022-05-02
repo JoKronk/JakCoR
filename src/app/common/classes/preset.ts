@@ -149,7 +149,7 @@ export class Preset {
     }
 
     public static FullCustomRando(): Preset {
-        const preset: Preset = new Preset("Custom", "Fully customizable randomizer.");
+        const preset: Preset = new Preset("Custom", "Fully customizable randomizer (all settings & rules modifiable).");
 
         preset.rules.find(x => x.id == 2).changeableType = true;
         preset.rules.find(x => x.id == 2).hidden = false;
