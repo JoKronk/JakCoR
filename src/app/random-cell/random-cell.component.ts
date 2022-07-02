@@ -26,7 +26,7 @@ export class RandomCellComponent implements OnInit {
   headers: string[] = ["selected", "name", "type", "description"];
   ruleSource: MatTableDataSource<Rule> = new MatTableDataSource(this.preset.rules.filter(x => !x.hidden));
   ruleSelection = new SelectionModel<Rule>(true, []);
-  private ruleSort : MatSort;
+  private ruleSort : MatSort = new MatSort();
   @ViewChild('ruleSort') set rSort(ms: MatSort) {
     if (!this.ruleSort)
       this.ruleSort = ms;
@@ -34,7 +34,7 @@ export class RandomCellComponent implements OnInit {
   }
 
   @ViewChild('drawer') drawer: MatDrawer;
-  @ViewChild(MatAccordion) accordion: MatAccordion;
+  @ViewChild(MatAccordion) accordion: MatAccordion = new MatAccordion();
   @ViewChild('settingsPanel', {static: true}) settingsPanel: MatExpansionPanel;
   @ViewChild('rulesPanel', {static: true}) rulesPanel: MatExpansionPanel;
 
@@ -48,15 +48,15 @@ export class RandomCellComponent implements OnInit {
     this.drawer.opened = false;
     
     if (resetSeed)
-      this.preset.randomizer.seed = null;
+      this.preset.randomizer.seed = undefined;
 
     const rules = this.ruleSelection.selected.concat(this.preset.rules.filter(x => x.hidden));
     this.preset.randomizer.injections = rules.filter(x => x.type === Rule.InjectionType());
     this.preset.randomizer.restrictions = rules.filter(x => x.type === Rule.RestrictionType());
     this.preset.randomizer.randomizeOrder();
 
-    this.sortedCells = this.preset.randomizer.cells.filter(x => x.cellNumber).sort((a,b) => (a.cellNumber > b.cellNumber) ? 1 : ((b.cellNumber > a.cellNumber) ? -1 : 0));
-    this.cellsShown = this.preset.randomizer.cellsShownInAdvance + 1;
+    this.sortedCells = this.preset.randomizer.cells.filter(x => x.cellNumber).sort((a,b) => ((a.cellNumber as number) > (b.cellNumber as number)) ? 1 : (((b.cellNumber as number) > (a.cellNumber as number)) ? -1 : 0));
+    this.cellsShown = this.preset.randomizer.cellsShownInAdvance ? this.preset.randomizer.cellsShownInAdvance + 1 : this.sortedCells.length + 1;
 
     if (this.cellsShown < this.sortedCells.length) {
       this.displayedCells = this.sortedCells.slice(0, this.cellsShown);
@@ -76,7 +76,7 @@ export class RandomCellComponent implements OnInit {
     }
   }
 
-  advanceRun(element) {
+  advanceRun(element : HTMLDivElement) {
     this.displayedCells.push(this.sortedCells[this.cellsShown])
     this.cellsShown++;
 
@@ -94,7 +94,7 @@ export class RandomCellComponent implements OnInit {
 
 
   updateRunCellCount(event: MatSliderChange): void {
-    this.preset.randomizer.cellsInRun = event.value;
+    this.preset.randomizer.cellsInRun = event.value ?? (this.presets.find(x => x.name === this.preset.name) as Preset).randomizer.cellsInRun;
   }
 
   updateCellsShownInAdvance(event: MatSliderChange): void {

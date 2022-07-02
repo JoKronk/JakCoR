@@ -4,7 +4,7 @@ export class Cell {
     endLevel: string;
     name: string;
     hub: number;
-    cellNumber?: number;
+    cellNumber: number | null;
     hasBeenRandomized: boolean;
 
     orbCost?: number;

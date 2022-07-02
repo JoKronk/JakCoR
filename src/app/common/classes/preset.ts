@@ -40,7 +40,7 @@ export class Preset {
         var xmlDoc: Document = parser.parseFromString(xmlBase, "text/xml");
         var segments = xmlDoc.getElementsByTagName("Segments");
         
-        const sortedCells: Cell[] = this.randomizer.cells.filter(x => x.cellNumber).sort((a,b) => (a.cellNumber > b.cellNumber) ? 1 : ((b.cellNumber > a.cellNumber) ? -1 : 0));
+        const sortedCells: Cell[] = this.randomizer.cells.filter(x => x.cellNumber).sort((a,b) => ((a.cellNumber as number) > (b.cellNumber as number)) ? 1 : (((b.cellNumber as number) > (a.cellNumber as number)) ? -1 : 0));
         sortedCells.forEach(cell => {
             segments[0].appendChild(this.generateCellXmlSegment(xmlDoc, "[Cell " + cell.cellNumber + "] " + cell.level + ": " + cell.name));
         });
@@ -51,7 +51,7 @@ export class Preset {
         return serializer.serializeToString(xmlDoc);
     }
     
-    private generateCellXmlSegment(xmlDoc, splitname: string): any {
+    private generateCellXmlSegment(xmlDoc: Document, splitname: string): any {
         let segment = xmlDoc.createElement("Segment");
         let name = xmlDoc.createElement("Name");
         name.innerHTML = splitname;
@@ -104,58 +104,58 @@ export class Preset {
         preset.randomizer.sameHubPercent = 0;
         preset.lockLevel = 3;
 
-        preset.rules.find(x => x.id == 2).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 2).changeableType = true;
-        preset.rules.find(x => x.id == 2).hidden = false;
-        preset.rules.find(x => x.id == 3).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 3).changeableType = true;
-        preset.rules.find(x => x.id == 3).hidden = false;
-        preset.rules.find(x => x.id == 4).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 4).changeableType = false;
-        preset.rules.find(x => x.id == 5).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 5).changeableType = false;
-        preset.rules.find(x => x.id == 5).hidden = true;
-        preset.rules.find(x => x.id == 6).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 6).changeableType = false;
-        preset.rules.find(x => x.id == 6).hidden = true;
-        preset.rules.find(x => x.id == 7).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 7).changeableType = false;
-        preset.rules.find(x => x.id == 7).hidden = true;
-        preset.rules.find(x => x.id == 10).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 10).changeableType = false;
-        preset.rules.find(x => x.id == 11).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 11).changeableType = false;
-        preset.rules.find(x => x.id == 11).hidden = true;
-        preset.rules.find(x => x.id == 12).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 12).changeableType = false;
-        preset.rules.find(x => x.id == 12).hidden = true;
-        preset.rules.find(x => x.id == 13).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 13).changeableType = false;
-        preset.rules.find(x => x.id == 14).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 14).changeableType = false;
-        preset.rules.find(x => x.id == 15).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 15).changeableType = false;
-        preset.rules.find(x => x.id == 16).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 16).changeableType = false;
-        preset.rules.find(x => x.id == 17).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 17).changeableType = false;
-        preset.rules.find(x => x.id == 18).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 18).changeableType = false;
-        preset.rules.find(x => x.id == 19).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 19).changeableType = false;
-        preset.rules.find(x => x.id == 20).type = Rule.RestrictionType();
-        preset.rules.find(x => x.id == 20).changeableType = false;
+        (preset.rules.find(x => x.id == 2) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 2) as Rule).changeableType = true;
+        (preset.rules.find(x => x.id == 2) as Rule).hidden = false;
+        (preset.rules.find(x => x.id == 3) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 3) as Rule).changeableType = true;
+        (preset.rules.find(x => x.id == 3) as Rule).hidden = false;
+        (preset.rules.find(x => x.id == 4) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 4) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 5) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 5) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 5) as Rule).hidden = true;
+        (preset.rules.find(x => x.id == 6) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 6) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 6) as Rule).hidden = true;
+        (preset.rules.find(x => x.id == 7) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 7) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 7) as Rule).hidden = true;
+        (preset.rules.find(x => x.id == 10) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 10) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 11) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 11) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 11) as Rule).hidden = true;
+        (preset.rules.find(x => x.id == 12) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 12) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 12) as Rule).hidden = true;
+        (preset.rules.find(x => x.id == 13) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 13) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 14) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 14) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 15) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 15) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 16) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 16) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 17) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 17) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 18) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 18) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 19) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 19) as Rule).changeableType = false;
+        (preset.rules.find(x => x.id == 20) as Rule).type = Rule.RestrictionType();
+        (preset.rules.find(x => x.id == 20) as Rule).changeableType = false;
         return preset;
     }
 
     public static FullCustomRando(): Preset {
         const preset: Preset = new Preset("Custom", "Fully customizable randomizer (all settings & rules modifiable).");
 
-        preset.rules.find(x => x.id == 2).changeableType = true;
-        preset.rules.find(x => x.id == 2).hidden = false;
-        preset.rules.find(x => x.id == 3).changeableType = true;
-        preset.rules.find(x => x.id == 3).hidden = false;
-        preset.rules.find(x => x.id == 4).hidden = false;
+        (preset.rules.find(x => x.id == 2) as Rule).changeableType = true;
+        (preset.rules.find(x => x.id == 2) as Rule).hidden = false;
+        (preset.rules.find(x => x.id == 3) as Rule).changeableType = true;
+        (preset.rules.find(x => x.id == 3) as Rule).hidden = false;
+        (preset.rules.find(x => x.id == 4) as Rule).hidden = false;
 
         return preset;
     }
