@@ -27,7 +27,7 @@ export class Randomizer {
 
     private mathRandom;
 
-    private consoleLogDebugText: boolean = true;
+    private consoleLogDebugText: boolean = false;
 
     reset() {
         if (this.consoleLogDebugText)
@@ -44,7 +44,7 @@ export class Randomizer {
         this.mathRandom = new seedrandom(this.seed);
         this.randomizeCompleted = false;
         this.requiredCellsForFinalBoss = [];
-        this.cells.forEach(x => x.cellNumber = null);
+        this.cells.forEach(x => { x.cellNumber = null; x.hasBeenRandomized = false });
         this.orbWallet = new OrbWallet();
         this.previousCell = null;
         this.requiredCellsForFinalBoss = [0, 1, 2, 3, 34, 67, 94, 99];
@@ -79,6 +79,18 @@ export class Randomizer {
         this.randomizeCompleted = true;
     }
 
+    getNewCell(nextId?: number): Cell {
+        //get cell (gets given cell id EVEN IF IT'S NOT AVAILABLE IN POOL, else a randomized cell with level persistance percentage radomization)
+        const cellId: number = nextId ?? this.getNextCellId(this.previousCell && this.randomizeIfSameLevel() ? this.previousCell.endLevel : null, this.previousCell && this.randomizeIfSameHub() ? this.previousCell.hub : null);
+        const cell: Cell = this.cells.find(x => x.id === cellId);
+
+        if (this.consoleLogDebugText)
+            console.log("RANDOMIZED CELL", this.currentCellNumber + " - " + cell.level + ": " + cell.name);
+
+        cell.hasBeenRandomized = true;
+        return cell;
+    }
+
     runCellRandomizeCycle(incrementCellNumber: boolean = false, nextId?: number, isRandomInject: boolean = false, isEndCell: boolean = false) {
 
         this.checkSetAvailableCellPool();
@@ -89,12 +101,7 @@ export class Randomizer {
             return;
         }
 
-        //get cell (gets given cell id EVEN IF IT'S NOT AVAILABLE IN POOL, else a randomized cell with level persistance percentage radomization)
-        const cellId: number = nextId ?? this.getNextCellId(this.previousCell && this.randomizeIfSameLevel() ? this.previousCell.endLevel : null, this.previousCell && this.randomizeIfSameHub() ? this.previousCell.hub : null);
-        const cell = this.cells.find(x => x.id === cellId);
-
-        if (this.consoleLogDebugText)
-            console.log("RANDOMIZED CELL", this.currentCellNumber + " - " + cell.level + ": " + cell.name);
+        const cell = this.getNewCell(nextId);
 
         //previous cell assigned here in case updateInjection inserts new cell
         this.previousCell = cell;
@@ -209,7 +216,7 @@ export class Randomizer {
     checkRuleCleared(rule: Rule): boolean {
         let cellAfterRequiermentFulfilled = true;
         if (rule.cellIdsNeededLeft) {
-            rule.cellIdsNeededLeft = rule.cellIdsNeededLeft.filter(cellId => !this.cells.find(x => x.id === cellId).cellNumber);
+            rule.cellIdsNeededLeft = rule.cellIdsNeededLeft.filter(cellId => !this.cells.find(x => x.id === cellId).cellNumber); //can't take use of .hasBeenRandomized here as injections could cause cells waiting to be injected to falsly toggle this, opening the pool to cells not yet available
 
             if (rule.cellIdsNeededLeft.length === 0 && rule.cellCountsNeededCellIdsLeft) {
                 for (let cellId of rule.cellIdsNeeded) {
@@ -229,7 +236,7 @@ export class Randomizer {
 
     checkSetAvailableCellPool(): void {
         //get unobtained cells
-        const unobtainedCells = this.cells.filter(x => !x.cellNumber).map(x => Object.assign({}, x));
+        const unobtainedCells = this.cells.filter(x => !x.hasBeenRandomized).map(x => Object.assign({}, x));
         this.availableCellPool = unobtainedCells.map(x => Object.assign({}, x));
 
         //filter out by restrictions
