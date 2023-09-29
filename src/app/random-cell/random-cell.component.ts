@@ -46,7 +46,7 @@ export class RandomCellComponent implements OnInit {
     if (resetSeed)
       this.preset.randomizer.seed = null;
 
-    const rules = this.ruleSelection.selected.concat(Rule.ListRules().filter(x => x.hidden));
+    const rules = this.ruleSelection.selected.concat(this.preset.rules.filter(x => x.hidden));
     this.preset.randomizer.injections = rules.filter(x => x.type === Rule.InjectionType());
     this.preset.randomizer.restrictions = rules.filter(x => x.type === Rule.RestrictionType());
     this.preset.randomizer.randomizeOrder();
