@@ -35,7 +35,7 @@ export class Preset {
     }
 
     private writeLssFile(): string {
-        const xmlBase = '<?xml version="1.0" encoding="UTF-8"?><Run version="1.7.0"><GameIcon /><GameName>Jak and Daxter: The Precursor Legacy</GameName><CategoryName>Randomizer: ' + this.name + '</CategoryName><LayoutPath></LayoutPath><Metadata><Run id="" /><Platform usesEmulator="False"></Platform><Region></Region><Variables /></Metadata><Offset>-00:00:01.60</Offset><AttemptCount>0</AttemptCount><AttemptHistory /><Segments></Segments><AutoSplitterSettings /></Run>';
+        const xmlBase = '<?xml version="1.0" encoding="UTF-8"?><Run version="1.7.0"><GameIcon /><GameName>Jak and Daxter: The Precursor Legacy</GameName><CategoryName>Randomizer: ' + this.name + '</CategoryName><LayoutPath></LayoutPath><Metadata><Run id="' + this.randomizer.seed + '" /><Platform usesEmulator="False"></Platform><Region></Region><Variables /></Metadata><Offset>-00:00:01.60</Offset><AttemptCount>0</AttemptCount><AttemptHistory /><Segments></Segments><AutoSplitterSettings /></Run>';
         var parser = new DOMParser();
         var xmlDoc: Document = parser.parseFromString(xmlBase, "text/xml");
         var segments = xmlDoc.getElementsByTagName("Segments");
