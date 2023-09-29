@@ -29,6 +29,9 @@ export class Randomizer {
     private consoleLogDebugText: boolean = false;
 
     reset() {
+        if (this.consoleLogDebugText)
+            console.clear();
+
         if (!this.seed) {
             for (let i = 0; i < 25; i++) {
                 this.seed = new seedrandom().int32();
@@ -42,18 +45,23 @@ export class Randomizer {
         this.requiredCellsForFinalBoss = [];
         this.cells.forEach(x => x.cellNumber = null);
         this.orbWallet = new OrbWallet();
+        this.previousCell = null;
         this.requiredCellsForFinalBoss = [0, 1, 2, 3, 34, 67, 94, 99];
 
         this.injections.forEach(x => {
             x.cleared = false;
             if (x.cellIdsNeeded)
                 x.cellIdsNeededLeft = JSON.parse(JSON.stringify(x.cellIdsNeeded));
+            if (x.cellIdsAnyNeededBeforeActive)
+                x.active = false;
         });
 
         this.restrictions.forEach(x => {
             x.cleared = false;
             if (x.cellIdsNeeded)
                 x.cellIdsNeededLeft = JSON.parse(JSON.stringify(x.cellIdsNeeded));
+            if (x.cellIdsAnyNeededBeforeActive)
+                x.active = false;
         });
     }
 
@@ -68,6 +76,7 @@ export class Randomizer {
 
     runCellRandomizeCycle(incrementCellNumber: boolean = false, nextId?: number, isEndCell: boolean = false) {
 
+        this.checkRuleActivation();
         this.checkSetAvailableCellPool();
 
         //breakout if softlocked order
@@ -77,7 +86,7 @@ export class Randomizer {
         }
 
         //get cell (gets given cell id EVEN IF IT'S NOT AVAILABLE IN POOL, else a randomized cell with level persistance percentage radomization)
-        const cellId: number = nextId ? nextId : this.getNextCellId(this.previousCell && this.randomizeIfSameLevel() ? this.previousCell.level : null);
+        const cellId: number = nextId ? nextId : this.getNextCellId(this.previousCell && this.randomizeIfSameLevel() ? this.previousCell.endLevel : null);
         const cell = this.cells.find(x => x.id === cellId);
 
         //previous cell assigned here in case updateInjection inserts new cell
@@ -122,7 +131,7 @@ export class Randomizer {
     }
 
     updateInjections(currentCell: Cell): void {
-        this.injections.filter(x => !x.cleared).forEach(injection => {
+        this.injections.filter(x => !x.cleared && x.active).forEach(injection => {
             //remove existing cell requirements from injection if future requirement is randomized
             if (injection.cellIdsNeededLeft?.includes(currentCell.id)) {
                 injection.cellIdsNeededLeft.splice(injection.cellIdsNeededLeft.indexOf(currentCell.id), 1);
@@ -160,13 +169,49 @@ export class Randomizer {
         return cells.hubs?.includes(cell.hub) || cells.levels?.includes(cell.level) || cells.cellIds?.includes(cell.id);
     }
 
+    checkRuleActivation(): void {
+        if (!this.previousCell)
+            return;
+
+        this.restrictions.filter(x => !x.active).forEach(x => {
+            if (x.cellIdsAnyNeededBeforeActive.includes(this.previousCell.id)) {
+                this.activateRule(x);
+            }
+        });
+        this.injections.filter(x => !x.active).forEach(x => {
+            if (x.cellIdsAnyNeededBeforeActive.includes(this.previousCell.id)) {
+                this.activateRule(x);
+            }
+        });
+    }
+
+    activateRule(rule: Rule) {
+        rule.active = true;
+        let cellAfterRequiermentFulfilled = true;
+        if (rule.cellIdsNeededLeft) {
+            rule.cellIdsNeededLeft = rule.cellIdsNeededLeft.filter(cellId => !this.cells.find(x => x.id === cellId).cellNumber);
+
+            if (rule.cellIdsNeededLeft.length === 0 && rule.cellCountNeededAfterCellIdsRequired) {
+                for (let cellId of rule.cellIdsNeeded) {
+                    if (this.cells.find(x => x.id === cellId).cellNumber + rule.cellCountNeededAfterCellIdsRequired <= this.currentCellNumber) {
+                        cellAfterRequiermentFulfilled = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!(rule.cellIdsNeededLeft?.length) && (!rule.cellCountNeeded || rule.cellCountNeeded < this.currentCellNumber) && cellAfterRequiermentFulfilled)
+            rule.cleared = true;
+    }
+
     checkSetAvailableCellPool(): void {
         //get unobtained cells
         const unobtainedCells = this.cells.filter(x => !x.cellNumber).map(x => Object.assign({}, x));
         this.availableCellPool = unobtainedCells.map(x => Object.assign({}, x));
 
         //filter out by restrictions
-        this.restrictions.filter(x => !x.cleared).forEach(rule => {
+        this.restrictions.filter(x => !x.cleared && x.active).forEach(rule => {
             if (this.checkRestrictionClear(rule))
                 return;
 
@@ -213,6 +258,9 @@ export class Randomizer {
     }
 
     getNextCellId(ensureLevel?: string): number {
+        if (this.consoleLogDebugText && ensureLevel)
+            console.log("Same Level Randomized", ensureLevel);
+
         const cellPool: Cell[] = ensureLevel ? (this.availableCellPool.filter(x => x.level === ensureLevel).length != 0 ? this.availableCellPool.filter(x => x.level === ensureLevel) : this.availableCellPool) : this.availableCellPool;
         return cellPool[Math.floor(this.mathRandom() * cellPool.length)].id;
     }
@@ -246,7 +294,7 @@ export class Randomizer {
             new Cell(15, 1, "Sentinel", "Explore the beach"),
             new Cell(16, 1, "Sentinel", "Middle sentinel"),
             new Cell(17, 1, "Sentinel", "Scout flies"),
-            new Cell(18, 1, "FJ", "Mirrors"),
+            new Cell(18, 1, "FJ", "Mirrors", null, "Sandover"),
             new Cell(19, 1, "FJ", "Top of tower"),
             new Cell(20, 1, "FJ", "Blue eco vent"),
             new Cell(21, 1, "FJ", "Plant boss"),
@@ -254,7 +302,7 @@ export class Randomizer {
             new Cell(23, 1, "FJ", "Swim to island"),
             new Cell(24, 1, "FJ", "Locked blue eco door"),
             new Cell(25, 1, "FJ", "Scout flies"),
-            new Cell(26, 1, "Misty", "Catch muse"),
+            new Cell(26, 1, "Misty", "Catch muse", null, "Sandover"),
             new Cell(27, 1, "Misty", "Lurker ship"),
             new Cell(28, 1, "Misty", "Cannon"),
             new Cell(29, 1, "Misty", "Dark eco pool"),
@@ -270,9 +318,9 @@ export class Randomizer {
             new Cell(39, 2, "Rock Village", "Oracle orbs", 120),
             new Cell(40, 2, "Rock Village", "Oracle orbs", 120),
             new Cell(41, 2, "Rock Village", "Scout flies"),
-            new Cell(42, 2, "Basin", "Moles"),
+            new Cell(42, 2, "Basin", "Moles", null, "Rock Village"),
             new Cell(43, 2, "Basin", "Flying lurkers"),
-            new Cell(44, 2, "Basin", "Race"),
+            new Cell(44, 2, "Basin", "Race", null, "Rock Village"),
             new Cell(45, 2, "Basin", "Over the lake"),
             new Cell(46, 2, "Basin", "Plants"),
             new Cell(47, 2, "Basin", "Purple rings"),
