@@ -159,6 +159,8 @@ export class Randomizer {
                         this.runCellRandomizeCycle(true);
                     }
                 }
+                this.previousCell = currentCell;
+
                 if (this.consoleLogDebugText)
                     console.log("INJECTION COMPLETE:", injection.name);
             }
