@@ -106,6 +106,8 @@ export class Preset {
         preset.rules.find(x => x.id == 3).type = Rule.RestrictionType();
         preset.rules.find(x => x.id == 3).changeableType = true;
         preset.rules.find(x => x.id == 3).hidden = false;
+        preset.rules.find(x => x.id == 4).type = Rule.RestrictionType();
+        preset.rules.find(x => x.id == 4).changeableType = false;
         preset.rules.find(x => x.id == 5).type = Rule.RestrictionType();
         preset.rules.find(x => x.id == 5).changeableType = false;
         preset.rules.find(x => x.id == 5).hidden = true;
@@ -142,6 +144,7 @@ export class Preset {
         preset.rules.find(x => x.id == 2).hidden = false;
         preset.rules.find(x => x.id == 3).changeableType = true;
         preset.rules.find(x => x.id == 3).hidden = false;
+        preset.rules.find(x => x.id == 4).hidden = false;
 
         return preset;
     }
