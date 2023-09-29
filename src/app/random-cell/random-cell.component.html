@@ -24,7 +24,6 @@
                     <div class="box box-input">
                         <input type="number" [(ngModel)]="preset.randomizer.seed">
                     </div>
-                    <button class="box box-button" (click)="randomize(run, false)">{{ preset.randomizer.randomizeCompleted ? "Reset" : "Apply" }}</button>
                     <br />
                     <div class="box box-slider box-input box-input-small">
                         <span>Cells Shown in Advance: </span>
@@ -47,8 +46,8 @@
 
                 <!--Settings & Rules-->
                 <div>
-                    <button class="box box-button" (click)="settingsPanel.expanded = !settingsPanel.expanded">Run Generation Settings</button>
-                    <button class="box box-button" (click)="rulesPanel.expanded = !rulesPanel.expanded">Modify Rules</button>
+                    <button class="box box-button" (click)="settingsPanel.expanded = !settingsPanel.expanded">Settings</button>
+                    <button class="box box-button" (click)="rulesPanel.expanded = !rulesPanel.expanded">Rules</button>
                 </div>
                 <mat-accordion multi>
                     <mat-expansion-panel class="mat-elevation-z0" #settingsPanel>
@@ -125,7 +124,8 @@
                 </mat-accordion>
                 <br />
 
-                <button class="box box-button" (click)="randomize(run)">Generate Run</button>
+                <button class="box box-button" (click)="randomize(run)">Generate New Run</button>
+                <button class="box box-button" (click)="randomize(run, false)">Generate With Current Seed</button>
                 
             </div>
         </div>
