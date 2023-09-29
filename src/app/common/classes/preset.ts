@@ -75,8 +75,8 @@ export class Preset {
         preset.randomizer.cellsInRun = 50;
         preset.randomizer.cellsShownInAdvance = 100;
         preset.randomizer.endAtFinalBoss = false;
-        preset.randomizer.sameLevelPercent = 60;
-        preset.randomizer.sameLevelPercentOrbCells = 50;
+        preset.randomizer.sameLevelPercent = 65;
+        preset.randomizer.sameLevelPercentOrbCells = 60;
         preset.lockLevel = 2;
         return preset;
     }
@@ -86,8 +86,8 @@ export class Preset {
         preset.randomizer.cellsInRun = 74;
         preset.randomizer.cellsShownInAdvance = 2;
         preset.randomizer.endAtFinalBoss = true;
-        preset.randomizer.sameLevelPercent = 65;
-        preset.randomizer.sameLevelPercentOrbCells = 55;
+        preset.randomizer.sameLevelPercent = 70;
+        preset.randomizer.sameLevelPercentOrbCells = 60;
         preset.lockLevel = 1;
         return preset;
     }
@@ -162,7 +162,7 @@ export class Preset {
         preset.randomizer.cellsInRun = 101;
         preset.randomizer.cellsShownInAdvance = 100;
         preset.randomizer.endAtFinalBoss = true;
-        preset.randomizer.sameLevelPercent = 70;
+        preset.randomizer.sameLevelPercent = 75;
         preset.randomizer.sameLevelPercentOrbCells = 60;
         preset.lockLevel = 2;
         return preset;
