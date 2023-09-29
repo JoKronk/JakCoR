@@ -145,12 +145,11 @@ export class Randomizer {
                     return;
                 }
                 
-                injection.cleared = true;
                 if (this.consoleLogDebugText)
                     console.log("INJECTION STARTED: ", injection.name);
 
                 if (injection.cellIdsNeededLeft) {
-                    injection.cellIdsNeededLeft.forEach(id => {
+                    JSON.parse(JSON.stringify(injection.cellIdsNeededLeft)).forEach(id => {
                         this.runCellRandomizeCycle(true, id);
                     });
                 }
@@ -161,6 +160,7 @@ export class Randomizer {
                     }
                 }
                 this.previousCell = currentCell;
+                injection.cleared = true;
 
                 if (this.consoleLogDebugText)
                     console.log("INJECTION COMPLETE:", injection.name);
