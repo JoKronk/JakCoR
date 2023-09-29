@@ -1,12 +1,11 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
 import { MatDrawer } from '@angular/material/sidenav';
 import { MatSliderChange } from '@angular/material/slider';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Cell } from '../common/classes/cell';
-import { Randomizer } from '../common/classes/randomizer';
+import { Preset } from '../common/classes/preset';
 import { Rule } from '../common/classes/rule';
 
 @Component({
@@ -16,15 +15,15 @@ import { Rule } from '../common/classes/rule';
 })
 export class RandomCellComponent implements OnInit {
 
-  randomizer: Randomizer = new Randomizer();
+  presets: Preset[] = Preset.ListPresets();
+  preset: Preset = this.presets[0];
+
   sortedCells: Cell[] = [];
   displayedCells: Cell[] = [];
   cellsShown: number = 0;
-  
-  rules: Rule[] = Rule.ListRules().filter(x => !x.hidden);
 
   headers: string[] = ["selected", "name", "type", "description"];
-  ruleSource: MatTableDataSource<Rule> = new MatTableDataSource(this.rules);
+  ruleSource: MatTableDataSource<Rule> = new MatTableDataSource(this.preset.rules.filter(x => !x.hidden));
   ruleSelection = new SelectionModel<Rule>(true, []);
   private ruleSort : MatSort;
   @ViewChild('ruleSort') set rSort(ms: MatSort) {
@@ -45,15 +44,15 @@ export class RandomCellComponent implements OnInit {
     this.drawer.opened = false;
     
     if (resetSeed)
-      this.randomizer.seed = null;
+      this.preset.randomizer.seed = null;
 
     const rules = this.ruleSelection.selected.concat(Rule.ListRules().filter(x => x.hidden));
-    this.randomizer.injections = rules.filter(x => x.type === Rule.InjectionType());
-    this.randomizer.restrictions = rules.filter(x => x.type === Rule.RestrictionType());
-    this.randomizer.randomizeOrder();
+    this.preset.randomizer.injections = rules.filter(x => x.type === Rule.InjectionType());
+    this.preset.randomizer.restrictions = rules.filter(x => x.type === Rule.RestrictionType());
+    this.preset.randomizer.randomizeOrder();
 
-    this.sortedCells = this.randomizer.cells.filter(x => x.cellNumber).sort((a,b) => (a.cellNumber > b.cellNumber) ? 1 : ((b.cellNumber > a.cellNumber) ? -1 : 0));
-    this.cellsShown = this.randomizer.cellsShownInAdvance + 1;
+    this.sortedCells = this.preset.randomizer.cells.filter(x => x.cellNumber).sort((a,b) => (a.cellNumber > b.cellNumber) ? 1 : ((b.cellNumber > a.cellNumber) ? -1 : 0));
+    this.cellsShown = this.preset.randomizer.cellsShownInAdvance + 1;
 
     if (this.cellsShown < this.sortedCells.length) {
       this.displayedCells = this.sortedCells.slice(0, this.cellsShown);
@@ -89,20 +88,21 @@ export class RandomCellComponent implements OnInit {
     return this.cellsShown >= this.sortedCells.length;
   }
 
+
   updateRunCellCount(event: MatSliderChange): void {
-    this.randomizer.cellsInRun = event.value;
+    this.preset.randomizer.cellsInRun = event.value;
   }
 
   updateCellsShownInAdvance(event: MatSliderChange): void {
-    this.randomizer.cellsShownInAdvance = event.value;
+    this.preset.randomizer.cellsShownInAdvance = event.value;
   }
 
   updateLevelPercent(event: MatSliderChange): void {
-    this.randomizer.sameLevelPercent = event.value;
+    this.preset.randomizer.sameLevelPercent = event.value;
   }
 
   updateOrbCellLevelPercent(event: MatSliderChange): void {
-    this.randomizer.sameLevelPercentOrbCells = event.value;
+    this.preset.randomizer.sameLevelPercentOrbCells = event.value;
   }
 
 
@@ -136,5 +136,12 @@ export class RandomCellComponent implements OnInit {
 
   ruleTypes(): string[] {
     return Rule.ListRuleTypes();
+  }
+
+  updateRules() {
+    this.ruleSource = new MatTableDataSource(this.preset.rules.filter(x => !x.hidden));
+    this.ruleSource.sort = this.ruleSort;
+    this.ruleMasterToggle();
+    this.ruleMasterToggle();
   }
 }

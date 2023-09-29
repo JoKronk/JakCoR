@@ -22,14 +22,14 @@
                         <mat-icon class="box-tip" matTooltipPosition="after" matTooltip='Generate the same run as another runner with the same seed (and settings!). Use "Apply" to use the current seed for the run, "Generate Run" at the bottom will generate a new seed.'>help</mat-icon>
                     </div>
                     <div class="box box-input">
-                        <input type="number" [(ngModel)]="randomizer.seed">
+                        <input type="number" [(ngModel)]="preset.randomizer.seed">
                     </div>
-                    <button class="box box-button" (click)="randomize(run, false)">{{ randomizer.randomizeCompleted ? "Reset" : "Apply" }}</button>
+                    <button class="box box-button" (click)="randomize(run, false)">{{ preset.randomizer.randomizeCompleted ? "Reset" : "Apply" }}</button>
                     <br />
                     <div class="box box-slider box-input box-input-small">
                         <span>Cells Shown in Advance: </span>
-                        <input type="number" [(ngModel)]="randomizer.cellsShownInAdvance" min="0" max="100">
-                        <mat-slider [(ngModel)]="randomizer.cellsShownInAdvance" (input)="updateCellsShownInAdvance($event)"  min="0" max="100" aria-label="percent"></mat-slider>
+                        <input type="number" [disabled]="preset.lockLevel >= 4" [(ngModel)]="preset.randomizer.cellsShownInAdvance" min="0" max="100">
+                        <mat-slider [disabled]="preset.lockLevel >= 4" [(ngModel)]="preset.randomizer.cellsShownInAdvance" (input)="updateCellsShownInAdvance($event)"  min="0" max="100" aria-label="percent"></mat-slider>
                         <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Number of cells shown in advance if ran on webpage.">help</mat-icon>
                     </div>
                 </div>
@@ -38,31 +38,36 @@
                 <h4>Run Generation Settings</h4>
                 <div>
                     <div class="box">
-                        <span>Preset: Coming later</span>
+                        <span>Preset: </span>
+                        <select [(ngModel)]="preset" (change)="updateRules()">
+                            <option *ngFor="let preset of presets" [ngValue]="preset">{{ preset.name }}</option>
+                        </select>
                     </div>
+                    <p [innerHTML]="preset.description"></p>
                     <br />
                     <div class="box box-toggle">
-                        <mat-slide-toggle [(ngModel)]="randomizer.endAtFinalBoss">End run at Final Boss <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Cells needed for the Final Boss are inserted at the end if not randomized earlier, End of Lava Tube is included in this to not force Citadel Hops.">help</mat-icon></mat-slide-toggle>
+                        <mat-slide-toggle [disabled]="preset.lockLevel >= 2" [(ngModel)]="preset.randomizer.endAtFinalBoss" labelPosition="before">End run at Final Boss </mat-slide-toggle>
+                        <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Cells needed for the Final Boss are inserted at the end if not randomized earlier, End of Lava Tube is included in this to not force Citadel Hops.">help</mat-icon>
                     </div>
                     <br />
                     <div class="box box-slider box-input box-input-small">
                         <span>Number of Cells: </span>
-                        <input type="number" [(ngModel)]="randomizer.cellsInRun" min="10" max="101">
-                        <mat-slider [(ngModel)]="randomizer.cellsInRun" (input)="updateRunCellCount($event)" min="10" max="101" aria-label="cells"></mat-slider>
+                        <input type="number" [disabled]="preset.lockLevel >= 1" [(ngModel)]="preset.randomizer.cellsInRun" min="10" max="101">
+                        <mat-slider [disabled]="preset.lockLevel >= 1" [(ngModel)]="preset.randomizer.cellsInRun" (input)="updateRunCellCount($event)" min="10" max="101" aria-label="cells"></mat-slider>
                         <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Number of cells in the run.">help</mat-icon>
                     </div>
                     <br />
                     <div class="box box-slider box-input box-input-small">
                         <span>Same Level Chance (%): </span>
-                        <input type="number" [(ngModel)]="randomizer.sameLevelPercent" min="0" max="100">
-                        <mat-slider [(ngModel)]="randomizer.sameLevelPercent" (input)="updateLevelPercent($event)" min="0" max="100" aria-label="percent"></mat-slider>
+                        <input type="number" [disabled]="preset.lockLevel >= 3" [(ngModel)]="preset.randomizer.sameLevelPercent" min="0" max="100">
+                        <mat-slider [disabled]="preset.lockLevel >= 3" [(ngModel)]="preset.randomizer.sameLevelPercent" (input)="updateLevelPercent($event)" min="0" max="100" aria-label="percent"></mat-slider>
                         <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Percentage chance for the next Cell to belong to the previous Cell's level. Radomises first if the level should be the same, then a cell from the level or a completely random cell. Set to 0 for Classic Randomizer.">help</mat-icon>
                     </div>
                     <br />
                     <div class="box box-slider box-input box-input-small">
                         <span>Same Level Orb Cell Chance (%): </span>
-                        <input type="number" [(ngModel)]="randomizer.sameLevelPercentOrbCells" min="0" max="100">
-                        <mat-slider [(ngModel)]="randomizer.sameLevelPercentOrbCells" (input)="updateOrbCellLevelPercent($event)" min="0" max="100" aria-label="percent"></mat-slider>
+                        <input type="number" [disabled]="preset.lockLevel >= 3" [(ngModel)]="preset.randomizer.sameLevelPercentOrbCells" min="0" max="100">
+                        <mat-slider [disabled]="preset.lockLevel >= 3" [(ngModel)]="preset.randomizer.sameLevelPercentOrbCells" (input)="updateOrbCellLevelPercent($event)" min="0" max="100" aria-label="percent"></mat-slider>
                         <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Same Level Chance but specific to cells with orb requirements to avoid (or enable) more crazy orb requirements.">help</mat-icon>
                     </div>
                 </div>
@@ -137,11 +142,11 @@
         </div>
     </div>
     
-    <div class="run" [class.hidden]="!randomizer.randomizeCompleted" #run>
-        <button class="box box-button run-header" (click)="randomizer.downloadLssFile()">Download Livesplit File</button>
+    <div class="run" [class.hidden]="!preset.randomizer.randomizeCompleted" #run>
+        <button class="box box-button run-header" (click)="preset.randomizer.downloadLssFile()">Download Livesplit File</button>
         <b class="run-header">Run seed: </b>
-        <input type="number" disabled [(ngModel)]="randomizer.seed"><br />
+        <input type="number" disabled [(ngModel)]="preset.randomizer.seed"><br />
         <p *ngFor="let cell of displayedCells">Cell {{ cell.cellNumber }}: <b>{{ cell.level }}</b>: {{ cell.name }}</p>
-        <p *ngIf="randomizer.endAtFinalBoss && runHasEnded()">End: <b>Citadel</b>: Final Boss</p>
+        <p *ngIf="preset.randomizer.endAtFinalBoss && runHasEnded()">End: <b>Citadel</b>: Final Boss</p>
     </div>
   </mat-drawer-container>
