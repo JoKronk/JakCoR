@@ -18,6 +18,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatSliderModule} from '@angular/material/slider';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatExpansionModule} from '@angular/material/expansion';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
     MatTooltipModule,
     MatCheckboxModule,
     MatSliderModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatExpansionModule
   ],
   providers: [],
   bootstrap: [AppComponent]

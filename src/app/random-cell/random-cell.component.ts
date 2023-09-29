@@ -1,5 +1,6 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { Component, OnInit, ViewChild } from '@angular/core';
+import { MatAccordion, MatExpansionPanel } from '@angular/material/expansion';
 import { MatDrawer } from '@angular/material/sidenav';
 import { MatSliderChange } from '@angular/material/slider';
 import { MatSort } from '@angular/material/sort';
@@ -33,6 +34,9 @@ export class RandomCellComponent implements OnInit {
   }
 
   @ViewChild('drawer') drawer: MatDrawer;
+  @ViewChild(MatAccordion) accordion: MatAccordion;
+  @ViewChild('settingsPanel', {static: true}) settingsPanel: MatExpansionPanel;
+  @ViewChild('rulesPanel', {static: true}) rulesPanel: MatExpansionPanel;
 
   constructor() { }
 
