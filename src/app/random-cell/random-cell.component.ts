@@ -101,6 +101,10 @@ export class RandomCellComponent implements OnInit {
     this.preset.randomizer.sameLevelPercent = event.value;
   }
 
+  updateHubPercent(event: MatSliderChange): void {
+    this.preset.randomizer.sameHubPercent = event.value;
+  }
+
   updateOrbCellLevelPercent(event: MatSliderChange): void {
     this.preset.randomizer.sameLevelPercentOrbCells = event.value;
   }

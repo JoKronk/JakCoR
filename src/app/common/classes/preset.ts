@@ -77,6 +77,7 @@ export class Preset {
         preset.randomizer.endAtFinalBoss = false;
         preset.randomizer.sameLevelPercent = 65;
         preset.randomizer.sameLevelPercentOrbCells = 60;
+        preset.randomizer.sameHubPercent = 55;
         preset.lockLevel = 2;
         return preset;
     }
@@ -88,6 +89,7 @@ export class Preset {
         preset.randomizer.endAtFinalBoss = true;
         preset.randomizer.sameLevelPercent = 70;
         preset.randomizer.sameLevelPercentOrbCells = 60;
+        preset.randomizer.sameHubPercent = 55;
         preset.lockLevel = 1;
         return preset;
     }
@@ -99,6 +101,7 @@ export class Preset {
         preset.randomizer.endAtFinalBoss = true;
         preset.randomizer.sameLevelPercent = 0;
         preset.randomizer.sameLevelPercentOrbCells = 0;
+        preset.randomizer.sameHubPercent = 0;
         preset.lockLevel = 3;
 
         preset.rules.find(x => x.id == 2).type = Rule.RestrictionType();
@@ -164,6 +167,7 @@ export class Preset {
         preset.randomizer.endAtFinalBoss = true;
         preset.randomizer.sameLevelPercent = 75;
         preset.randomizer.sameLevelPercentOrbCells = 60;
+        preset.randomizer.sameHubPercent = 65;
         preset.lockLevel = 2;
         return preset;
     }
