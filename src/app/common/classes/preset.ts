@@ -1,3 +1,4 @@
+import { Cell } from "./cell";
 import { Randomizer } from "./randomizer";
 import { Rule } from "./rule";
 
@@ -17,10 +18,61 @@ export class Preset {
         this.lockLevel = 0;
     }
 
+    //Generations
+    downloadLssFile() {
+        var element = document.createElement('a');
+        let data = encodeURIComponent(this.writeLssFile());
+        element.setAttribute('href', 'data:Application/octet-stream;charset=UTF-8,' + data);
+        element.setAttribute('download', 'JakCoR.lss');
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+    }
+
+    private writeLssFile(): string {
+        const xmlBase = '<?xml version="1.0" encoding="UTF-8"?><Run version="1.7.0"><GameIcon /><GameName>Jak and Daxter: The Precursor Legacy</GameName><CategoryName>Randomizer: ' + this.name + '</CategoryName><LayoutPath></LayoutPath><Metadata><Run id="" /><Platform usesEmulator="False"></Platform><Region></Region><Variables /></Metadata><Offset>-00:00:01.60</Offset><AttemptCount>0</AttemptCount><AttemptHistory /><Segments></Segments><AutoSplitterSettings /></Run>';
+        var parser = new DOMParser();
+        var xmlDoc: Document = parser.parseFromString(xmlBase, "text/xml");
+        var segments = xmlDoc.getElementsByTagName("Segments");
+        
+        const sortedCells: Cell[] = this.randomizer.cells.filter(x => x.cellNumber).sort((a,b) => (a.cellNumber > b.cellNumber) ? 1 : ((b.cellNumber > a.cellNumber) ? -1 : 0));
+        sortedCells.forEach(cell => {
+            segments[0].appendChild(this.generateCellXmlSegment(xmlDoc, "[Cell " + cell.cellNumber + "] " + cell.level + ": " + cell.name));
+        });
+        if (this.randomizer.endAtFinalBoss)
+            segments[0].appendChild(this.generateCellXmlSegment(xmlDoc, "[END] Citadel: Final Boss"))
+
+        var serializer = new XMLSerializer();
+        return serializer.serializeToString(xmlDoc);
+    }
+    
+    private generateCellXmlSegment(xmlDoc, splitname: string): any {
+        let segment = xmlDoc.createElement("Segment");
+        let name = xmlDoc.createElement("Name");
+        name.innerHTML = splitname;
+        segment.appendChild(name);
+
+        let splitTimes = xmlDoc.createElement("SplitTimes");
+        let splitTime = xmlDoc.createElement("SplitTime");
+        splitTime.setAttribute("name", "Personal Best");
+        splitTimes.appendChild(splitTime);
+        segment.appendChild(splitTimes);
+
+        segment.appendChild(xmlDoc.createElement("BestSegmentTime"));
+        segment.appendChild(xmlDoc.createElement("SegmentHistory"));
+        return segment;
+    }
+
+
+
     public static FiddyCellRando(): Preset {
         const preset: Preset = new Preset("50 Cells", "Estimated time: 1h 30min+");
         preset.randomizer.cellsInRun = 50;
-        preset.randomizer.cellsShownInAdvance = 1;
+        preset.randomizer.cellsShownInAdvance = 100;
         preset.randomizer.endAtFinalBoss = false;
         preset.randomizer.sameLevelPercent = 60;
         preset.randomizer.sameLevelPercentOrbCells = 50;
