@@ -27,7 +27,7 @@ export class Randomizer {
 
     private mathRandom;
 
-    private consoleLogDebugText: boolean = false;
+    private consoleLogDebugText: boolean = true;
 
     reset() {
         if (this.consoleLogDebugText)
@@ -53,16 +53,20 @@ export class Randomizer {
             x.cleared = false;
             if (x.cellIdsNeeded)
                 x.cellIdsNeededLeft = JSON.parse(JSON.stringify(x.cellIdsNeeded));
+            if (x.cellCountNeededAfterCellIdsRequired)
+                x.cellCountsNeededCellIdsLeft = JSON.parse(JSON.stringify(x.cellCountNeededAfterCellIdsRequired));
             if (x.cellIdsAnyNeededBeforeActive)
-                x.active = false;
+                x.started = false;
         });
 
         this.restrictions.forEach(x => {
             x.cleared = false;
             if (x.cellIdsNeeded)
                 x.cellIdsNeededLeft = JSON.parse(JSON.stringify(x.cellIdsNeeded));
+            if (x.cellCountNeededAfterCellIdsRequired)
+                x.cellCountsNeededCellIdsLeft = JSON.parse(JSON.stringify(x.cellCountNeededAfterCellIdsRequired));
             if (x.cellIdsAnyNeededBeforeActive)
-                x.active = false;
+                x.started = false;
         });
     }
 
@@ -75,9 +79,8 @@ export class Randomizer {
         this.randomizeCompleted = true;
     }
 
-    runCellRandomizeCycle(incrementCellNumber: boolean = false, nextId?: number, isEndCell: boolean = false) {
+    runCellRandomizeCycle(incrementCellNumber: boolean = false, nextId?: number, isRandomInject: boolean = false, isEndCell: boolean = false) {
 
-        this.checkRuleActivation();
         this.checkSetAvailableCellPool();
 
         //breakout if softlocked order
@@ -87,23 +90,28 @@ export class Randomizer {
         }
 
         //get cell (gets given cell id EVEN IF IT'S NOT AVAILABLE IN POOL, else a randomized cell with level persistance percentage radomization)
-        const cellId: number = nextId ? nextId : this.getNextCellId(this.previousCell && this.randomizeIfSameLevel() ? this.previousCell.endLevel : null, this.previousCell && this.randomizeIfSameHub() ? this.previousCell.hub : null);
+        const cellId: number = nextId ?? this.getNextCellId(this.previousCell && this.randomizeIfSameLevel() ? this.previousCell.endLevel : null, this.previousCell && this.randomizeIfSameHub() ? this.previousCell.hub : null);
         const cell = this.cells.find(x => x.id === cellId);
+
+        if (this.consoleLogDebugText)
+            console.log("RANDOMIZED CELL", this.currentCellNumber + " - " + cell.level + ": " + cell.name);
 
         //previous cell assigned here in case updateInjection inserts new cell
         this.previousCell = cell;
 
-        if (!isEndCell)
+        if (!isEndCell && !isRandomInject)
             this.updateInjections(cell);
 
         if (!(this.currentCellNumber <= this.cellsInRun))
             return;
 
+        this.checkRuleActivation(cell);
+
         //assign values
         cell.cellNumber = this.currentCellNumber;
 
         if (this.consoleLogDebugText)
-            console.log("cell", this.currentCellNumber + " - " + cell.level + ": " + cell.name);
+            console.log("ADDED CELL", this.currentCellNumber + " - " + cell.level + ": " + cell.name);
 
         this.orbWallet.checkForOrbsSpent(cell);
         this.orbWallet.checkForOrbsUnlocked(cell);
@@ -126,17 +134,22 @@ export class Randomizer {
                 this.currentCellNumber++;
 
             this.requiredCellsForFinalBoss.forEach(cellId => {
-                this.runCellRandomizeCycle(true, cellId, true);
+                this.runCellRandomizeCycle(true, cellId, false, true);
             });
         }
     }
 
     updateInjections(currentCell: Cell): void {
-        this.injections.filter(x => !x.cleared && x.active).forEach(injection => {
+        this.injections.filter(x => !x.cleared && x.started).map(x => x.id).forEach(id => {
+            const injection = this.injections.find(x => x.id === id);
+            //!TODO: Figure out why this happens..
+            if (injection.cleared || !injection.started)
+                return;
+
             //remove existing cell requirements from injection if future requirement is randomized
-            if (injection.cellIdsNeededLeft?.includes(currentCell.id)) {
+            if (injection.cellIdsNeededLeft?.includes(currentCell.id)) 
                 injection.cellIdsNeededLeft.splice(injection.cellIdsNeededLeft.indexOf(currentCell.id), 1);
-            }
+
             //execute injection if randomized cell is part of rule
             if (this.cellIsPartOfCellList(currentCell, injection.cellsUnlocked) && (!injection.cellCountNeeded || injection.cellCountNeeded >= this.currentCellNumber)) {
                 
@@ -146,24 +159,30 @@ export class Randomizer {
                 }
                 
                 if (this.consoleLogDebugText)
-                    console.log("INJECTION STARTED: ", injection.name);
+                    console.log("RUNNING INJECTION LOGIC FOR " + injection.name + ": ", JSON.parse(JSON.stringify(injection)));
 
                 if (injection.cellIdsNeededLeft) {
                     JSON.parse(JSON.stringify(injection.cellIdsNeededLeft)).forEach(id => {
                         this.runCellRandomizeCycle(true, id);
                     });
                 }
+                
+                if (!injection.cellIdsNeededLeft?.length) {
 
-                if (injection.cellCountNeededAfterCellIdsRequired) {
-                    for (let i: number = 0; i < injection.cellCountNeededAfterCellIdsRequired; i++) {
-                        this.runCellRandomizeCycle(true);
+                    if (injection.cellCountsNeededCellIdsLeft) {
+                        while (injection.cellCountsNeededCellIdsLeft > 0) {
+                            injection.cellCountsNeededCellIdsLeft--;
+                            this.runCellRandomizeCycle(true, null, true);
+                            if (injection.cleared) //as this can self loop if it randomizes a cell that belongs to current rule which causes this to loop multiple times
+                                return;
+                        }
                     }
+                    this.previousCell = currentCell;
+                    injection.cleared = true;
+    
+                    if (this.consoleLogDebugText)
+                        console.log("INJECTION COMPLETE:", injection.name);
                 }
-                this.previousCell = currentCell;
-                injection.cleared = true;
-
-                if (this.consoleLogDebugText)
-                    console.log("INJECTION COMPLETE:", injection.name);
             }
         });
     }
@@ -172,31 +191,29 @@ export class Randomizer {
         return cells.hubs?.includes(cell.hub) || cells.levels?.includes(cell.level) || cells.cellIds?.includes(cell.id);
     }
 
-    checkRuleActivation(): void {
-        if (!this.previousCell)
-            return;
-
-        this.restrictions.filter(x => !x.active).forEach(x => {
-            if (x.cellIdsAnyNeededBeforeActive.includes(this.previousCell.id)) {
-                this.activateRule(x);
+    checkRuleActivation(cell: Cell): void {
+        this.restrictions.filter(x => !x.started).forEach(x => {
+            if (x.cellIdsAnyNeededBeforeActive.includes(cell.id)) {
+                x.started = true;
+                this.checkRuleCleared(x);
             }
         });
-        this.injections.filter(x => !x.active).forEach(x => {
-            if (x.cellIdsAnyNeededBeforeActive.includes(this.previousCell.id)) {
-                this.activateRule(x);
+        this.injections.filter(x => !x.started).forEach(x => {
+            if (x.cellIdsAnyNeededBeforeActive.includes(cell.id)) {
+                x.started = true;
+                this.checkRuleCleared(x);
             }
         });
     }
 
-    activateRule(rule: Rule) {
-        rule.active = true;
+    checkRuleCleared(rule: Rule): boolean {
         let cellAfterRequiermentFulfilled = true;
         if (rule.cellIdsNeededLeft) {
             rule.cellIdsNeededLeft = rule.cellIdsNeededLeft.filter(cellId => !this.cells.find(x => x.id === cellId).cellNumber);
 
-            if (rule.cellIdsNeededLeft.length === 0 && rule.cellCountNeededAfterCellIdsRequired) {
+            if (rule.cellIdsNeededLeft.length === 0 && rule.cellCountsNeededCellIdsLeft) {
                 for (let cellId of rule.cellIdsNeeded) {
-                    if (this.cells.find(x => x.id === cellId).cellNumber + rule.cellCountNeededAfterCellIdsRequired <= this.currentCellNumber) {
+                    if (this.cells.find(x => x.id === cellId).cellNumber + rule.cellCountsNeededCellIdsLeft <= this.currentCellNumber) {
                         cellAfterRequiermentFulfilled = false;
                         break;
                     }
@@ -206,6 +223,8 @@ export class Randomizer {
 
         if (!(rule.cellIdsNeededLeft?.length) && (!rule.cellCountNeeded || rule.cellCountNeeded < this.currentCellNumber) && cellAfterRequiermentFulfilled)
             rule.cleared = true;
+            
+        return rule.cleared;
     }
 
     checkSetAvailableCellPool(): void {
@@ -214,7 +233,7 @@ export class Randomizer {
         this.availableCellPool = unobtainedCells.map(x => Object.assign({}, x));
 
         //filter out by restrictions
-        this.restrictions.filter(x => !x.cleared && x.active).forEach(rule => {
+        this.restrictions.filter(x => !x.cleared && x.started).forEach(rule => {
             if (this.checkRestrictionClear(rule))
                 return;
 
@@ -233,10 +252,10 @@ export class Randomizer {
         if (rule.cellIdsNeededLeft?.includes(this.previousCell.id))
             rule.cellIdsNeededLeft.splice(rule.cellIdsNeededLeft.indexOf(this.previousCell.id), 1);
 
-        if (rule.cellCountNeededAfterCellIdsRequired && !(rule.cellIdsNeededLeft?.length))
-            rule.cellCountNeededAfterCellIdsRequired--;
+        if (rule.cellCountsNeededCellIdsLeft && !(rule.cellIdsNeededLeft?.length))
+            rule.cellCountsNeededCellIdsLeft--;
 
-        const cleared = !(rule.cellIdsNeededLeft?.length) && (!rule.cellCountNeeded || rule.cellCountNeeded < this.currentCellNumber) && (!rule.cellCountNeededAfterCellIdsRequired || rule.cellCountNeededAfterCellIdsRequired <= 0);
+        const cleared = !(rule.cellIdsNeededLeft?.length) && (!rule.cellCountNeeded || rule.cellCountNeeded < this.currentCellNumber) && (!rule.cellCountsNeededCellIdsLeft || rule.cellCountsNeededCellIdsLeft <= 0);
         if (cleared) {
             rule.cleared = cleared;
 
@@ -269,7 +288,7 @@ export class Randomizer {
             console.log("Same Level Randomized", ensureLevel);
 
         else if (this.consoleLogDebugText && ensureHub)
-                console.log("Same Hub Randomized", this.previousCell.cellNumber);
+                console.log("Same Hub Randomized As Cell", this.previousCell.cellNumber);
 
         const cellPool: Cell[] = ensureLevel && this.availableCellPool.filter(x => x.level === ensureLevel).length != 0 ? this.availableCellPool.filter(x => x.level === ensureLevel) : ensureHub && this.availableCellPool.filter(x => x.hub === ensureHub).length != 0 ? this.availableCellPool.filter(x => x.hub === ensureHub) : this.availableCellPool;
         return cellPool[Math.floor(this.mathRandom() * cellPool.length)].id;

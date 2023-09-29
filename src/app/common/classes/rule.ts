@@ -10,13 +10,14 @@ export class Rule {
     type: string;
     changeableType: boolean;
 
-    active: boolean;
+    started: boolean;
     cleared: boolean;
 
     cellCountNeeded?: number;
     cellIdsNeeded?: number[];
     cellIdsNeededLeft?: number[];
     cellCountNeededAfterCellIdsRequired?: number;
+    cellCountsNeededCellIdsLeft?: number;
     cellIdsAnyNeededBeforeActive?: number[];
 
     cellsUnlocked: CellList; //unlocked when rule is lifted
@@ -32,7 +33,7 @@ export class Rule {
         this.cellsUnlocked = new CellList();
         this.cleared = false;
         this.changeableType = true;
-        this.active = true;
+        this.started = true;
     }
 
     //REQUIRED BASE RULES
