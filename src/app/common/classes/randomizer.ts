@@ -273,8 +273,8 @@ export class Randomizer {
         this.endAtFinalBoss = true;
         this.cellsInRun = 74;
         this.cellsShownInAdvance = 100;
-        this.sameLevelPercent = 50;
-        this.sameLevelPercentOrbCells = 35;
+        this.sameLevelPercent = 60;
+        this.sameLevelPercentOrbCells = 50;
         this.orbWallet = new OrbWallet();
         this.requiredCellsForFinalBoss = [0, 1, 2, 3, 35, 68, 95, 100]; //End of Lava Tube included so we don't have to check for rules regarding it or force people to Citadel Hop
 
