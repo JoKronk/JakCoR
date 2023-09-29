@@ -80,6 +80,9 @@ export class Randomizer {
     }
 
     getNewCell(nextId?: number): Cell {
+        if (nextId && this.cells.find(x => x.id === nextId)?.hasBeenRandomized)
+        nextId = undefined;
+
         //get cell (gets given cell id EVEN IF IT'S NOT AVAILABLE IN POOL, else a randomized cell with level persistance percentage radomization)
         const cellId: number = nextId ?? this.getNextCellId(this.previousCell && this.randomizeIfSameLevel() ? this.previousCell.endLevel : undefined, this.previousCell && this.randomizeIfSameHub() ? this.previousCell.hub : undefined);
         const cell: Cell = this.cells.find(x => x.id === cellId) as Cell;
