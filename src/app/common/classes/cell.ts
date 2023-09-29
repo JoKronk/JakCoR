@@ -5,6 +5,7 @@ export class Cell {
     name: string;
     hub: number;
     cellNumber?: number;
+    hasBeenRandomized: boolean;
 
     orbCost?: number;
 
@@ -16,5 +17,6 @@ export class Cell {
         this.orbCost = orbCost;
         this.cellNumber = null;
         this.endLevel = endsIn ?? level;
+        this.hasBeenRandomized = false;
     }
 }
