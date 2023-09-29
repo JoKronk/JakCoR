@@ -7,7 +7,7 @@ export class OrbWallet {
 
     checkForOrbsUnlocked(cell: Cell) {
         this.orbLocks.forEach(lock => {
-            if ((lock.cellId && lock.cellId === cell.id) || (lock.cellCount && lock.cellCount <= cell.cellNumber)) {
+            if ((lock.cellId && lock.cellId === cell.id) || (lock.cellCount && lock.cellCount <= (cell.cellNumber as number))) {
                 this.removeOrbLock(lock);
             }
         });
@@ -28,9 +28,9 @@ export class OrbWallet {
 
         //Enough Orbs to buy everything is available by Hub 3 (1700 out of 1530 needed) so no further logic for Snowy, Lava Tube & Citadel is added.
         this.orbLocks = [
-            new OrbLock("Geyser Completed", (50 + 150 + 150), null, 4),
+            new OrbLock("Geyser Completed", (50 + 150 + 150), undefined, 4),
             new OrbLock("Misty Unlocked", 150, 19),
-            new OrbLock("FC Zoomer Unlocked", 50, null, 20),
+            new OrbLock("FC Zoomer Unlocked", 50, undefined, 20),
             new OrbLock("Hub 2 Unlocked", (50 + 200 + 200 + 200 + 50), 35),
             new OrbLock("Hub 3 Unlocked", (50 + 200), 68)
         ];

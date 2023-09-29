@@ -1,7 +1,7 @@
 export class CellList {
-    hubs: number[] = null;
-    levels: string[] = null;
-    cellIds: number[] = null;
+    hubs: number[] = [];
+    levels: string[] = [];
+    cellIds: number[] = [];
 
     constructor() {
      }
