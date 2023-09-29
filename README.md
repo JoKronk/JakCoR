@@ -8,6 +8,7 @@ Randomizer that aims to be as dynamic in settings for runners.
 
 - Custom Rule creator.
 - Pretty print XML on Livesplit download.
+- Optimize presets to not preload one randomizer for each preset.
 
 ## Version
 
