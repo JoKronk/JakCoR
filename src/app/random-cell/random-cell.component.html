@@ -1,0 +1,147 @@
+<mat-drawer-container autosize>
+    <mat-drawer #drawer class="sidenav-container" position="end" mode="side">
+        <div class="sidenav" (click)="advanceRun(run)">
+            <h2>A<br />D<br />V<br />A<br />N<br />C<br />E</h2>
+        </div>
+    </mat-drawer>
+
+    <div class="body">
+        <div class="body-half">
+            <div class="title">
+                <h1>Jak CoR</h1>
+                <h3>Cell order Randomizer</h3>
+            </div>
+            <div>
+                <div class="description mobile">
+                    <br /><b>Description at the bottom</b>
+                </div>
+                <h4>View Settings</h4>
+                <div>
+                    <div class="box box-info">
+                        <span>Seed</span>
+                        <mat-icon class="box-tip" matTooltipPosition="after" matTooltip='Generate the same run as another runner with the same seed (and settings!). Use "Apply" to use the current seed for the run, "Generate Run" at the bottom will generate a new seed.'>help</mat-icon>
+                    </div>
+                    <div class="box box-input">
+                        <input type="number" [(ngModel)]="randomizer.seed">
+                    </div>
+                    <button class="box box-button" (click)="randomize(run, false)">{{ randomizer.randomizeCompleted ? "Reset" : "Apply" }}</button>
+                    <br />
+                    <div class="box box-slider box-input box-input-small">
+                        <span>Cells Shown in Advance: </span>
+                        <input type="number" [(ngModel)]="randomizer.cellsShownInAdvance" min="0" max="100">
+                        <mat-slider [(ngModel)]="randomizer.cellsShownInAdvance" (input)="updateCellsShownInAdvance($event)"  min="0" max="100" aria-label="percent"></mat-slider>
+                        <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Number of cells shown in advance if ran on webpage.">help</mat-icon>
+                    </div>
+                </div>
+                <br />
+    
+                <h4>Run Generation Settings</h4>
+                <div>
+                    <div class="box">
+                        <span>Preset: Coming later</span>
+                    </div>
+                    <br />
+                    <div class="box box-toggle">
+                        <mat-slide-toggle [(ngModel)]="randomizer.endAtFinalBoss">End run at Final Boss <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Cells needed for the Final Boss are inserted at the end if not randomized earlier, End of Lava Tube is included in this to not force Citadel Hops.">help</mat-icon></mat-slide-toggle>
+                    </div>
+                    <br />
+                    <div class="box box-slider box-input box-input-small">
+                        <span>Number of Cells: </span>
+                        <input type="number" [(ngModel)]="randomizer.cellsInRun" min="10" max="101">
+                        <mat-slider [(ngModel)]="randomizer.cellsInRun" (input)="updateRunCellCount($event)" min="10" max="101" aria-label="cells"></mat-slider>
+                        <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Number of cells in the run.">help</mat-icon>
+                    </div>
+                    <br />
+                    <div class="box box-slider box-input box-input-small">
+                        <span>Same Level Chance (%): </span>
+                        <input type="number" [(ngModel)]="randomizer.sameLevelPercent" min="0" max="100">
+                        <mat-slider [(ngModel)]="randomizer.sameLevelPercent" (input)="updateLevelPercent($event)" min="0" max="100" aria-label="percent"></mat-slider>
+                        <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Percentage chance for the next Cell to belong to the previous Cell's level. Radomises first if the level should be the same, then a cell from the level or a completely random cell. Set to 0 for Classic Randomizer.">help</mat-icon>
+                    </div>
+                    <br />
+                    <div class="box box-slider box-input box-input-small">
+                        <span>Same Level Orb Cell Chance (%): </span>
+                        <input type="number" [(ngModel)]="randomizer.sameLevelPercentOrbCells" min="0" max="100">
+                        <mat-slider [(ngModel)]="randomizer.sameLevelPercentOrbCells" (input)="updateOrbCellLevelPercent($event)" min="0" max="100" aria-label="percent"></mat-slider>
+                        <mat-icon class="box-tip" matTooltipPosition="after" matTooltip="Same Level Chance but specific to cells with orb requirements to avoid (or enable) more crazy orb requirements.">help</mat-icon>
+                    </div>
+                </div>
+                <br />
+    
+                <h4>Rules</h4>
+                <div class="table">
+                    <table mat-table [dataSource]="ruleSource" multiTemplateDataRows #ruleSort="matSort" matSort>
+                      
+                        <ng-container matColumnDef="selected">
+                            <th mat-header-cell *matHeaderCellDef>
+                                <mat-checkbox (change)="$event ? ruleMasterToggle() : null" [checked]=" ruleSelection.hasValue() && isAllRulesSelected()" [indeterminate]="ruleSelection.hasValue() && !isAllRulesSelected() && !isNoneSelected()"></mat-checkbox>
+                              </th>
+                            <td mat-cell *matCellDef="let rule"> 
+                                <mat-checkbox [disabled]="rule.mandatory" (click)="$event.stopPropagation()" (change)="$event ? ruleSelection.toggle(rule) : null" [checked]="ruleSelection.isSelected(rule)"></mat-checkbox> 
+                              </td>
+                          </ng-container>
+                        <ng-container matColumnDef="name">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+                          <td mat-cell *matCellDef="let rule"> {{rule.name}} </td>
+                        </ng-container>
+                        <ng-container matColumnDef="type">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header> Type </th>
+                          <td mat-cell *matCellDef="let rule"> 
+                            <span *ngIf="!rule.changeableType" class="box-select-fake" [class.option-red]="ruleTypes()[0] === rule.type" [class.option-green]="ruleTypes()[0] != rule.type"> {{rule.type}} </span>
+                            <select *ngIf="rule.changeableType" [(ngModel)]="rule.type" [class.option-red]="ruleTypes()[0] === rule.type" [class.option-green]="ruleTypes()[0] != rule.type">
+                                <option *ngFor="let type of ruleTypes()" [ngValue]="type">{{type}}</option>
+                            </select>
+                          </td>
+                        </ng-container>
+                        <ng-container matColumnDef="description">
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header></th>
+                          <td mat-cell *matCellDef="let rule"> <mat-icon class="table-icon" matTooltipPosition="after" [matTooltip]="rule.description">description</mat-icon> </td>
+                        </ng-container>
+                
+                        <tr mat-header-row *matHeaderRowDef="headers; sticky: true"></tr>
+                        <tr mat-row *matRowDef="let row; columns: headers;"></tr>
+                    </table>
+                </div>
+                <br />
+                <button class="box box-button" (click)="randomize(run)">Generate Run</button>
+                
+            </div>
+        </div>
+        <div class="body-half description">
+            <br /><b>NOTE! For now always do red sage skip right after the end of Mountain Pass.</b><br />
+            <h4>Description</h4>
+            <p>
+                Functions by using a pool of available cells that is kept track on and updated for each Cell draw through two Rule types "Injected" and "Restricted" explained below.<br />
+                <br />
+                <br />
+                <b>Injected</b>:<br />
+                Allows the Cell into the pool with a pre requirement that will be injected into the route if the Cell is drawn.<br />
+                <br />
+                <b>Example</b>: Blue Rings Cell is available in the pool but will inject Purple Rings Cell into the route before itself if it hasn't been randomized in already.<br />
+                <br />
+                <br />
+                <b>Restricted</b>:<br />
+                Restricts the Cell from being available in the pool for the next Cell draw if the Rule still applies.<br />
+                <br />
+                <b>Example</b>: Blue Rings Cell is not available in the pool before Purple Rings Cell has been randomized in.<br />
+                <br />
+                <br />
+                This allows for scenarios where for example with "No FCS" enabled Snowy is available in the pool right after 20 cells are obtained, if Snowy is then drawn right after the program will map in the required End of Fire Canyon, End of Mountain Pass and two random cells as the next cells in the route, and will then add the Snowy cell that was randomized.<br />
+                <br />
+                <b>If this behaviour is unwanted and you for example want Snowy to be first available when it would be available by pure RNG (classic randomizer), turn the desired settings to "Restricted”.</b><br />
+                <br />
+                <br />
+                If “No LTS” “No FCS” and “No Citadel Hops” are turned of this means you technically can get a Citadel Cell from the available "Cell Pool" right after Geyser Rock with the injected order -> End of Fire Canyon -> End of Mountain Pass -> Citadel Cell.
+                
+            </p>
+        </div>
+    </div>
+    
+    <div class="run" [class.hidden]="!randomizer.randomizeCompleted" #run>
+        <button class="box box-button run-header" (click)="randomizer.downloadLssFile()">Download Livesplit File</button>
+        <b class="run-header">Run seed: </b>
+        <input type="number" disabled [(ngModel)]="randomizer.seed"><br />
+        <p *ngFor="let cell of displayedCells">Cell {{ cell.cellNumber }}: <b>{{ cell.level }}</b>: {{ cell.name }}</p>
+        <p *ngIf="randomizer.endAtFinalBoss && runHasEnded()">End: <b>Citadel</b>: Final Boss</p>
+    </div>
+  </mat-drawer-container>

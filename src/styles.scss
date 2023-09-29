@@ -1,1 +1,118 @@
+
+// Custom Theming for Angular Material
+// For more information: https://material.angular.io/guide/theming
+@use '~@angular/material' as mat;
+// Plus imports for other components in your app.
+
+// Include the common styles for Angular Material. We include this here so that you only
+// have to load a single css file for Angular Material in your app.
+// Be sure that you only ever include this mixin once!
+@include mat.core();
+
+$cor-jakorange: (
+    50 : #fdede5,
+    100 : #f9d1be,
+    200 : #f5b392,
+    300 : #f19566,
+    400 : #ee7e46,
+    500 : #eb6725,
+    600 : #e95f21,
+    700 : #e5541b,
+    800 : #e24a16,
+    900 : #dd390d,
+    A100 : #ffffff,
+    A200 : #ffdcd5,
+    A400 : #ffb2a2,
+    A700 : #ff9d89,
+    contrast: (
+        50 : #000000,
+        100 : #000000,
+        200 : #000000,
+        300 : #000000,
+        400 : #000000,
+        500 : #000000,
+        600 : #000000,
+        700 : #000000,
+        800 : #000000,
+        900 : #000000,
+        A100 : #000000,
+        A200 : #000000,
+        A400 : #000000,
+        A700 : #000000,
+    )
+);
+$cor-jakgrey: (
+  50 : #eae9e9,
+  100 : #cac8c7,
+  200 : #a6a4a2,
+  300 : #827f7c,
+  400 : #686360,
+  500 : #4d4844,
+  600 : #46413e,
+  700 : #3d3835,
+  800 : #34302d,
+  900 : #25211f,
+  A100 : #f9aa75,
+  A200 : #f78c44,
+  A400 : #ff6c09,
+  A700 : #ef6000,
+  contrast: (
+      50 : #000000,
+      100 : #000000,
+      200 : #000000,
+      300 : #ffffff,
+      400 : #ffffff,
+      500 : #ffffff,
+      600 : #ffffff,
+      700 : #ffffff,
+      800 : #ffffff,
+      900 : #ffffff,
+      A100 : #000000,
+      A200 : #000000,
+      A400 : #000000,
+      A700 : #ffffff,
+  )
+);
+
+// Define the palettes for your theme using the Material Design palettes available in palette.scss
+// (imported above). For each palette, you can optionally specify a default, lighter, and darker
+// hue. Available color palettes: https://material.io/design/color/
+$RandoCell-primary: mat.define-palette($cor-jakgrey);
+$RandoCell-accent: mat.define-palette($cor-jakorange, 500);
+
+// The warn palette is optional (defaults to red).
+$RandoCell-warn: mat.define-palette(mat.$red-palette);
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$RandoCell-theme: mat.define-light-theme((
+  color: (
+    primary: $RandoCell-primary,
+    accent: $RandoCell-accent,
+    warn: $RandoCell-warn,
+  )
+));
+
+// Include theme styles for core and each component used in your app.
+// Alternatively, you can import and @include the theme mixins for each component
+// that you are using.
+@include mat.all-component-themes($RandoCell-theme);
+
 /* You can add global styles to this file, and also import other style files */
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.mat-tooltip {
+  font-size: 15px !important;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
