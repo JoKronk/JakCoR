@@ -141,7 +141,7 @@ export class RandomCellComponent implements OnInit {
   updateRules() {
     this.ruleSource = new MatTableDataSource(this.preset.rules.filter(x => !x.hidden));
     this.ruleSource.sort = this.ruleSort;
-    this.ruleMasterToggle();
+    this.ruleSelection.clear();
     this.ruleMasterToggle();
   }
 }
